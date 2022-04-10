@@ -13,11 +13,15 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 FROM python:3.8-slim
-WORKDIR /opt/app
-COPY --from=build /opt/app/venv ./venv
-COPY . .
 
+RUN groupadd -g 999 python && useradd -r -u 999 -g python python
+RUN mkdir -p /opt/app && chown python:python /opt/app
+WORKDIR /opt/app
+
+COPY --chown=python:python --from=build /opt/app/venv ./venv
+COPY --chown=python:python . .
+
+USER 999
 ENV PATH="/opt/app/venv/bin:$PATH"
 
-EXPOSE 8899
 CMD ["python3", "app.py"]

@@ -1,14 +1,20 @@
 version: "3.9"
 services:
   db:
-    image: postgres:13.6
+    image: "postgres:${POSTGRES_VERSION}"
     environment:
-      POSTGRES_DB: "postgres"
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "mypass21!"
+      POSTGRES_DB: "${DB_NAME}"
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
     ports:
-      - "5432:5432"
+      - "${DB_PORT_DEFAULT}:${DB_PORT}"
   web:
-    build: .
+    build:
+      context: .
+      args:
+        BUILDKIT_INLINE_CACHE: "1"
+        DOCKER_BUILDKIT: "1"
+    depends_on:
+      - db
     ports:
-      - "8899:8899"
+      - "${APP_PORT}:${APP_PORT}"

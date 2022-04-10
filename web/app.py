@@ -1,22 +1,23 @@
 from asyncpg import create_pool
 from sanic import Sanic, response
+import os
 
 
 app = Sanic("DeliveryHero")
 
-APP_HOST = '0.0.0.0'
-APP_PORT = 8899
-APP_DEBUG_MODE = False
-APP_ACCESS_LOG = True
-DB_USER = 'postgres'
-DB_PASSWORD = 'mypass21!'
-DB_HOST = 'db'
-DB_PORT = '5432'
-DB_NAME = 'postgres'
-DB_CONN_POOL_MIN_SIZE = 10
-DB_CONN_POOL_MAX_SIZE = 100
-DB_CONN_POOL_MAX_QUERIES = 1500
-DB_CONN_POOL_CONNECTION_TIMEOUT = 600
+APP_HOST = os.getenv('APP_HOST', '0.0.0.0')
+APP_PORT = int(os.getenv('APP_PORT', 8899))
+APP_DEBUG_MODE = bool(os.getenv('APP_DEBUG_MODE', False))
+APP_ACCESS_LOG = bool(os.getenv('APP_ACCESS_LOG', True))
+DB_USER = os.getenv('DB_USER', 'postgres')
+DB_PASSWORD = os.getenv('DB_PASSWORD', 'mypass21!')
+DB_HOST = os.getenv('DB_HOST', 'db')
+DB_PORT = int(os.getenv('DB_PORT', '5432'))
+DB_NAME = os.getenv('DB_NAME', 'postgres')
+DB_CONN_POOL_MIN_SIZE = int(os.getenv('DB_CONN_POOL_MIN_SIZE', 10))
+DB_CONN_POOL_MAX_SIZE = int(os.getenv('DB_CONN_POOL_MAX_SIZE', 100))
+DB_CONN_POOL_MAX_QUERIES = int(os.getenv('DB_CONN_POOL_MAX_QUERIES', 1500))
+DB_CONN_POOL_CONNECTION_TIMEOUT = int(os.getenv('DB_CONN_POOL_CONNECTION_TIMEOUT', 600))
 
 
 @app.route("/api/v1/connections")
@@ -57,6 +58,7 @@ async def register_db(app, loop):
     """Function creates connection pool for the DB"""
 
     conn = f"postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    print("CURRENT CONNECTION", conn)
     app.config['pool'] = await create_pool(
                     dsn=conn,
                     min_size=DB_CONN_POOL_MIN_SIZE,

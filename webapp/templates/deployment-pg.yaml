@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: postgres
+  name: postgres
+spec:
+  minReadySeconds: 5
+  progressDeadlineSeconds: 600
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - args:
+        - chmod -R 700 /var/lib/postgresql/13/main/; chown -R postgres:postgres /var/lib/postgresql/13/main/;
+          docker-entrypoint.sh postgres;
+        command:
+        - /bin/sh
+        - -c
+        image: postgres:13.6
+        imagePullPolicy: Always
+        name: postgres
+        env:
+          - name: POSTGRES_DB
+            valueFrom:
+              configMapKeyRef:
+                name: parameters
+                key: DB_NAME
+          - name: POSTGRES_USER
+            valueFrom:
+              configMapKeyRef:
+                name: parameters
+                key: DB_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: parameters
+                key: DB_PASSWORD
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 300m
+            ephemeral-storage: 1Gi
+            memory: 512Mi
+          requests:
+            cpu: 10m
+            ephemeral-storage: 1Gi
+            memory: 512Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/13/main
+          name: storage
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 5
+      volumes:
+      - name: storage
+        emptyDir: {}
+

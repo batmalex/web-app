@@ -5,6 +5,9 @@ metadata:
     app: postgres
   name: postgres
 spec:
+  selector:
+    matchLabels:
+      app: postgres
   minReadySeconds: 5
   progressDeadlineSeconds: 600
   replicas: 1

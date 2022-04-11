@@ -1,7 +1,8 @@
 from asyncpg import create_pool
+from asyncpg import exceptions as pg_exc
 from sanic import Sanic, response
 import os
-
+import logging
 
 app = Sanic("DeliveryHero")
 
@@ -56,9 +57,7 @@ async def test(request):
 @app.listener('before_server_start')
 async def register_db(app, loop):
     """Function creates connection pool for the DB"""
-
     conn = f"postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    print("CURRENT CONNECTION", conn)
     app.config['pool'] = await create_pool(
                     dsn=conn,
                     min_size=DB_CONN_POOL_MIN_SIZE,
